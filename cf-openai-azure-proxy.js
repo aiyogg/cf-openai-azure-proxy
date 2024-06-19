@@ -6,15 +6,16 @@ const mapper = {
     'gpt-3.5-turbo': DEPLOY_NAME_GPT35,
     'gpt-3.5-turbo-0613': DEPLOY_NAME_GPT35,
     'gpt-3.5-turbo-1106': DEPLOY_NAME_GPT35,
-    'gpt-3.5-turbo-16k': DEPLOY_NAME_GPT35,
+    'gpt-3.5-turbo-16k': DEPLOY_NAME_GPT35_16K,
     'gpt-4': DEPLOY_NAME_GPT4,
+    'gpt-4o': DEPLOY_NAME_GPT4,
     'gpt-4-0613': DEPLOY_NAME_GPT4,
     'gpt-4-1106-preview': DEPLOY_NAME_GPT4,
     'gpt-4-32k': DEPLOY_NAME_GPT4,
     'dall-e-3': typeof DEPLOY_NAME_DALLE3 !== 'undefined' ? DEPLOY_NAME_DALLE3 : "dalle3",
 };
 
-const apiVersion="2023-12-01-preview"
+const apiVersion="2024-02-01"
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
@@ -44,6 +45,12 @@ async function handleRequest(request) {
   let body;
   if (request.method === 'POST') {
     body = await request.json();
+  }
+
+  // Compatible with OpenAI's response_format parameter
+  // Ref: https://platform.openai.com/docs/api-reference/chat/create#chat-create-response_format
+  if (body?.response_format?.type === 'json_object') {
+    body.response_format.type = 'json';
   }
 
   const modelName = body?.model;  
@@ -174,4 +181,3 @@ async function handleOPTIONS(request) {
       }
     })
 }
-
